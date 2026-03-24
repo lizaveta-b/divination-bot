@@ -26,7 +26,7 @@ def all_stats(user_id):
     """
     df_all = pd.read_sql_query(query_all, con)
     df_scores = pd.read_sql_query("""
-        SELECT u.telegram_id, p.score
+        SELECT p.user_id, u.telegram_id, p.score
         FROM Predictions p
         JOIN Users u ON p.user_id = u.user_id
     """, con)
@@ -45,7 +45,7 @@ def all_stats(user_id):
     text_result = "\n".join(messages) if messages else "Нет данных"
     if df_scores.empty:
         return text_result, None
-    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+    fig, axes = plt.subplots(2, 2, figsize=(18, 16))
     if not df_user.empty:
         axes[0, 0].barh(df_user['title'], df_user['cnt'])
         axes[0, 0].set_title('Ваши книги')
@@ -59,7 +59,7 @@ def all_stats(user_id):
     axes[1, 1].set_title('Средняя тональность по пользователям')
     plt.tight_layout()
     buf = BytesIO()
-    plt.savefig(buf, format='png')
+    plt.savefig(buf, format='png', bbox_inches='tight')
     buf.seek(0)
     plt.close()
     return text_result, buf
