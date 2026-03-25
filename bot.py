@@ -9,12 +9,20 @@ from sentiment import av_score
 from similar import get_similar_words
 from stats import all_stats
 
-token = "bot token here"
+token = 'bot token here'
 bot = telebot.TeleBot(token)
-db_path = "divinations.db"
+db_path = 'divinations.db'
 user_state = {}
 
-def get_or_create_user(telegram_id):
+def get_or_create_user(telegram_id: int) -> int:
+    '''
+    Получает или создаёт пользователя в базе данных.
+
+    Параметр:
+        telegram_id(int): Telegram ID пользователя
+
+    Возвращает внутренний user_id из базы данных.
+    '''
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT user_id FROM Users WHERE telegram_id = ?", (telegram_id,))
@@ -31,7 +39,17 @@ def get_or_create_user(telegram_id):
     conn.close()
     return user_id
 
-def save_prediction(user_id, book_id, score):
+def save_prediction(user_id: int, book_id: int, score: float) -> None:
+    '''
+    Сохраняет предсказание в базу данных.
+
+    Параметры:
+        user_id(int): Идентификатор пользователя
+        book_id(int): Идентификатор книги
+        score(float): Тональность предсказания
+        
+    Ничего не возвращает.
+    '''
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("""
@@ -41,7 +59,14 @@ def save_prediction(user_id, book_id, score):
     conn.commit()
     conn.close()
 
-def get_books():
+def get_books() -> List[Tuple[int, str]]:
+    '''
+    Получает список всех книг из базы данных.
+
+    Не получает ничего на вход.
+    
+    Возвращает список кортежей (book_id, title).
+    '''
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT book_id, title FROM Books")
@@ -49,7 +74,15 @@ def get_books():
     conn.close()
     return books
 
-def get_book_structure(book_id):
+def get_book_structure(book_id: int) -> Dict[int, List[str]]:
+    '''
+    Загружает структуру книги: страницы и строки.
+
+    Параметр:
+        book_id(int): Идентификатор книги
+
+    Возвращает словарь {номер_страницы: [строки]}.
+    '''
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("""
@@ -66,7 +99,15 @@ def get_book_structure(book_id):
         book.setdefault(page_n - 1, []).append(text)
     return book
 
-def get_book_lemmas(book_id):
+def get_book_lemmas(book_id: int) -> List[str]:
+    '''
+    Получает леммы слов книги из базы данных.
+
+    Параметр:
+        book_id(int): Идентификатор книги
+
+    Возвращает список лемм.
+    '''
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT text FROM Books WHERE book_id = ?", (book_id,))
@@ -74,22 +115,40 @@ def get_book_lemmas(book_id):
     conn.close()
     return lemmas.split()
 
-def main_menu(chat_id):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add("Получить предсказание", "Общая статистика")
-    bot.send_message(chat_id, "Готовы получить предсказание?", reply_markup=markup)
+def main_menu(chat_id: int) -> None:
+    '''
+    Отображает главное меню.
 
-def back_button():
+    Параметр:
+        chat_id(int): ID чата
+        
+    Ничего не возвращает
+    '''
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add('Получить предсказание', 'Общая статистика')
+    bot.send_message(chat_id, 'Готовы получить предсказание?', reply_markup=markup)
+
+def back_button() -> types.ReplyKeyboardMarkup:
+    '''
+    Создаёт кнопку 'Назад'.
+    '''
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add("Назад")
     return markup
 
 @bot.message_handler(commands=['start'])
-def start(message):
+def start(message: types.Message) -> None:
+    '''
+    Обрабатывает команду /start.
+    '''
+    main_menu(message.chat.id)
     main_menu(message.chat.id)
 
 @bot.message_handler(func=lambda m: m.text == "Общая статистика")
-def handle_stats(message):
+def handle_stats(message: types.Message) -> None:
+    '''
+    Обрабатывает запрос общей статистики.
+    '''
     chat_id = message.chat.id
     user_id = get_or_create_user(chat_id)
     text_result, plot_buf = all_stats(user_id)
@@ -97,16 +156,22 @@ def handle_stats(message):
     if plot_buf:
         bot.send_photo(chat_id, plot_buf)
     else:
-        bot.send_message(chat_id, "К сожалению, нам пока недостаточно данных для графика")
+        bot.send_message(chat_id, "К сожалению, нам пока недостаточно данных для графика:(")
 
 @bot.message_handler(func=lambda m: m.text == "Получить предсказание")
-def ask_question(message):
+def ask_question(message: types.Message) -> None:
+    '''
+    Обрабатывает начало процесса получения предсказания.
+    '''
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add("Я придумал вопрос", "Назад")
     bot.send_message(message.chat.id, "Придумайте вопрос:", reply_markup=markup)
 
 @bot.message_handler(func=lambda m: m.text == "Я придумал вопрос")
-def choose_book(message):
+def choose_book(message: types.Message) -> None:
+    '''
+    Обрабатывает выбор книги для предсказания.
+    '''
     books = get_books()
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     for _, title in books:
@@ -116,7 +181,10 @@ def choose_book(message):
     bot.send_message(message.chat.id, "Выберите книгу:", reply_markup=markup)
 
 @bot.message_handler(func=lambda m: True)
-def handler(message):
+def handler(message: types.Message) -> None:
+    '''
+    Обрабатывает выбор страницы, строки и действий.
+    '''
     chat_id = message.chat.id
     text = message.text
     if text == "Назад":
