@@ -1,6 +1,6 @@
 import sqlite3
 
-def create_dbdb_path: str = "divinations.db") -> None:
+def create_db(db_path: str = "divinations.db")
     '''
     Создаёт базу данных. ER-диаграмма здесь: https://clck.ru/3SkKTf
 
