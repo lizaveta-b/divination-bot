@@ -6,6 +6,7 @@ from lemmatize import lemmatize_text
 import zipfile
 import os
 import urllib.request
+from typing import List
 
 morph = MorphAnalyzer()
 conv = converters.converter('opencorpora-int', 'ud20')
