@@ -10,7 +10,7 @@ nltk.download('stopwords')
 sw = set(stopwords.words('russian'))
 morph = MorphAnalyzer()
 
-def lemmatize_text(full_text) -> List[str]:
+def lemmatize_text(full_text: str) -> List[str]:
     '''
     Лемматизирует текст.
     
