@@ -5,7 +5,7 @@ from lemmatize import lemmatize_text
 from collections import Counter
 from nltk.tokenize import word_tokenize
 
-def insert_bookdb_path(db_path:  str, pdf_path: str, title: str, author: str) -> None:
+def insert_book(db_path: str, pdf_path: str, title: str, author: str) -> None:
     '''
     Добавляет из PDF-файла книгу в базу данных.
 
