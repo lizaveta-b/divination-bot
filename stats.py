@@ -2,6 +2,7 @@ import sqlite3
 import pandas as pd
 import matplotlib.pyplot as plt
 from io import BytesIO
+from typing import Tuple, Optional
 
 
 def all_stats(user_id: int) -> Tuple[str, Optional[BytesIO]]:
@@ -42,13 +43,13 @@ def all_stats(user_id: int) -> Tuple[str, Optional[BytesIO]]:
     messages = []
     if not df_user.empty:
         messages.append(
-            f'Вы чаще всего выбирали "{df_user.iloc[0]['title']}" '
+            f"Вы чаще всего выбирали '{df_user.iloc[0]['title']}' "
             f'({df_user.iloc[0]['cnt']} раз)'
         )
     if not df_all.empty:
         messages.append(
-            f'Самая популярная книга среди пользователей: "{df_all.iloc[0]['title']}" '
-            f'({df_all.iloc[0]['cnt']} раз)'
+            f"Самая популярная книга среди пользователей: '{df_all.iloc[0]['title']}' "
+            f"({df_all.iloc[0]['cnt']} раз)"
         )
     text_result = '\n'.join(messages) if messages else 'К сожалению, нам не хватает данных:('
     if df_scores.empty:
