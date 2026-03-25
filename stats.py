@@ -4,9 +4,17 @@ import matplotlib.pyplot as plt
 from io import BytesIO
 
 
-def all_stats(user_id):
+def all_stats(user_id: int) -> Tuple[str, Optional[BytesIO]]:
+    '''
+    Формирует статистику по предсказаниям пользователя и общую статистику.
+
+    Параметр:
+        user_id(int): идентификатор пользователя
+
+    Возвращает кортеж (статистика(str), BytesIO (это графики)).
+    '''
     con = sqlite3.connect('divinations.db')
-    query_user = """
+    query_user = '''
         SELECT b.title, COUNT(*) as cnt
         FROM Predictions p
         JOIN Books b ON p.book_id = b.book_id
@@ -14,35 +22,35 @@ def all_stats(user_id):
         GROUP BY b.book_id
         ORDER BY cnt DESC
         LIMIT 5
-    """
+    '''
     df_user = pd.read_sql_query(query_user, con, params=(user_id,))
-    query_all = """
+    query_all = '''
         SELECT b.title, COUNT(*) as cnt
         FROM Predictions p
         JOIN Books b ON p.book_id = b.book_id
         GROUP BY b.book_id
         ORDER BY cnt DESC
         LIMIT 5
-    """
+    '''
     df_all = pd.read_sql_query(query_all, con)
-    df_scores = pd.read_sql_query("""
+    df_scores = pd.read_sql_query('''
         SELECT p.user_id, u.telegram_id, p.score
         FROM Predictions p
         JOIN Users u ON p.user_id = u.user_id
-    """, con)
+    ''', con)
     con.close()
     messages = []
     if not df_user.empty:
         messages.append(
-            f'Вы чаще всего выбирали "{df_user.iloc[0]["title"]}" '
-            f'({df_user.iloc[0]["cnt"]} раз)'
+            f'Вы чаще всего выбирали "{df_user.iloc[0]['title']}" '
+            f'({df_user.iloc[0]['cnt']} раз)'
         )
     if not df_all.empty:
         messages.append(
-            f'Самая популярная книга среди пользователей: "{df_all.iloc[0]["title"]}" '
-            f'({df_all.iloc[0]["cnt"]} раз)'
+            f'Самая популярная книга среди пользователей: "{df_all.iloc[0]['title']}" '
+            f'({df_all.iloc[0]['cnt']} раз)'
         )
-    text_result = "\n".join(messages) if messages else "Нет данных"
+    text_result = '\n'.join(messages) if messages else 'К сожалению, нам не хватает данных:('
     if df_scores.empty:
         return text_result, None
     fig, axes = plt.subplots(2, 2, figsize=(18, 16))

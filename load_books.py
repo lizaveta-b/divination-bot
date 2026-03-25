@@ -5,20 +5,31 @@ from lemmatize import lemmatize_text
 from collections import Counter
 from nltk.tokenize import word_tokenize
 
-def insert_book(db_path, pdf_path, title, author):
+def insert_bookdb_path(db_path:  str, pdf_path: str, title: str, author: str) -> None:
+    '''
+    Добавляет из PDF-файла книгу в базу данных.
+
+    Параметры:
+        db_path(str): Путь к файлу базы данных
+        pdf_path(str): Путь к PDF-файлу с книгой
+        title(str): Название книги
+        author(str): Автор книги
+        
+    Ничего не возвращает.
+    '''
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     data = pdf_to_text(pdf_path)
     total_pages = len(data)
     total_words = 0
-    full_text = "\n".join(
+    full_text = '\n'.join(
         line for page in data.values() for line in page
     )
     for lines in data.values():
         for line in lines:
             total_words += len(line.split())
     lemmas = lemmatize_text(full_text)
-    lemmas_text = " ".join(lemmas)
+    lemmas_text = ' '.join(lemmas)
     cursor.execute("""
         INSERT INTO Books (title, author, text, words_n, total_pages)
         VALUES (?, ?, ?, ?, ?)
@@ -39,14 +50,14 @@ def insert_book(db_path, pdf_path, title, author):
     conn.close()
 
 if __name__ == "__main__":
-    db_path = "divinations.db"
+    db_path = 'divinations.db'
     create_db(db_path)
     books = [
-        ("daughter.pdf", "Капитанская дочка", "А. С. Пушкин"),
-        ("bible.pdf", "Библия", ""),
-        ("jokes.pdf", "Сборник анекдотов", ""),
-        ("master.pdf", "Мастер и Маргарита", "М. А. Булгаков"),
-        ("slovar.pdf", "Толковый словарь Ожегова", "С. И. Ожегов")
+        ('daughter.pdf', 'Капитанская дочка', 'А. С. Пушкин'),
+        ('bible.pdf', 'Библия', ''),
+        ('jokes.pdf', 'Сборник анекдотов', ''),
+        ('master.pdf', 'Мастер и Маргарита', 'М. А. Булгаков'),
+        ('slovar.pdf', 'Толковый словарь Ожегова', 'С. И. Ожегов')
     ]
     for pdf, title, author in books:
         insert_book(db_path, pdf, title, author)

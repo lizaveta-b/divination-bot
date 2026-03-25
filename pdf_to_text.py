@@ -2,7 +2,15 @@ from pdfminer.high_level import extract_pages
 from pdfminer.layout import LTTextContainer
 import PyPDF2
 
-def pdf_to_text(pdf_path):
+def pdf_to_text(pdf_path: str) -> Dict[int, List[str]]:
+    '''
+    Извлекает текст из PDF-файла, сохраняя структуру по страницам и строкам.
+
+    Параметр:
+        pdf_path(str): Путь к PDF-файлу
+
+    Возвращает словарь, где ключ — номер страницы, значение — список строк.
+    '''
     with open(pdf_path, 'rb') as f:
         pdf_reader = PyPDF2.PdfReader(f)
         total_pages = len(pdf_reader.pages)

@@ -1,6 +1,16 @@
 import re
 
-def find_sentence(book, page, line):
+def find_sentence(book: Dict[int, List[str]], page: int, line: int) -> str:
+    '''
+    Находит полное предсказание по номеру страницы и строки.
+
+    Параметры:
+        book(Dict[int, List[str]]): Книгу в формате словаря {номер_страницы: [строки]}
+        page(int): Номер страницы (начиная с 1)
+        line(int): Номер строки на странице (начиная с 1)
+
+    Возвращает всё предложение, содержащее указанную строку.
+    '''
     line_n = line - 1
     page_n = page - 1
     sentence_end = ['.', '!', '?']
@@ -31,7 +41,7 @@ def find_sentence(book, page, line):
                     start_line = len(book[start_page]) - 1
                 else:
                     start_line -= 1
-
+                    
     if book[page_n][line_n][-1] not in sentence_end:
         if line_n == len(book[page_n]) - 1:
             end_page = page_n + 1

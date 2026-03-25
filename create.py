@@ -1,6 +1,14 @@
 import sqlite3
 
-def create_db(db_path: str = "divinations.db"):
+def create_dbdb_path: str = "divinations.db") -> None:
+    '''
+    Создаёт базу данных. ER-диаграмма здесь: https://clck.ru/3SkKTf
+
+    Параметр:
+        db_path(str): путь к файлу базы данных
+        
+    Ничего не возвращает.
+    '''
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("PRAGMA foreign_keys = ON;")

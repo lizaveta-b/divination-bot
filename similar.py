@@ -10,22 +10,30 @@ import urllib.request
 morph = MorphAnalyzer()
 conv = converters.converter('opencorpora-int', 'ud20')
 
-model_path = "model_185/model.bin"
+model_path = 'model_185/model.bin'
 
 if not os.path.exists(model_path):
-    url = "https://vectors.nlpl.eu/repository/20/185.zip"
-    urllib.request.urlretrieve(url, "185.zip")
+    url = 'https://vectors.nlpl.eu/repository/20/185.zip'
+    urllib.request.urlretrieve(url, '185.zip')
     with zipfile.ZipFile('185.zip', 'r') as zip_ref:
         zip_ref.extractall('model_185')
 
 model = KeyedVectors.load_word2vec_format(model_path, binary=True)
 kw_model = KeyBERT('DeepPavlov/rubert-base-cased')
-def add_pos_tags(words):
+def add_pos_tags(words: List[str]) -> List[str]:
+    '''
+    Добавляет POS-теги к словам.
+
+    Параметр:
+        words(List[str]): список слов
+
+    Возвращает список слов с тегами в формате 'слово_POS'.
+    '''
     result = []
     for word in words:
         parsed = morph.parse(word)[0]
         pos_tag = conv(str(parsed.tag)).split()[0]
-        result.append(f"{word}_{pos_tag}")
+        result.append(f'{word}_{pos_tag}')
     return result
 
 def get_similar_words(text, top_n = 1, use_pos = True):
@@ -40,7 +48,7 @@ def get_similar_words(text, top_n = 1, use_pos = True):
             'keywords': [],
             'similar_words': {}
         }
-    lemmas = lemmatize_text(" ".join(keywords))
+    lemmas = lemmatize_text(''.join(keywords))
     if use_pos:
         processed_words = add_pos_tags(lemmas)
     else:

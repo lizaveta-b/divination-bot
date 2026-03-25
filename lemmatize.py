@@ -10,7 +10,15 @@ nltk.download('stopwords')
 sw = set(stopwords.words('russian'))
 morph = MorphAnalyzer()
 
-def lemmatize_text(full_text):
+def lemmatize_text(full_text: str) -> List[str]:
+    '''
+    Лемматизирует текст.
+    
+    Параметр:
+        full_text(str): Текст предсказания
+        
+    Возвращает список лемм в порядке их появления.
+    '''
     tokens = word_tokenize(full_text, language='russian')
     words = [w.lower() for w in tokens if w.isalpha()]
     no_sw = [w for w in words if w not in sw]
