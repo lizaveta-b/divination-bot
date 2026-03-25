@@ -1,6 +1,7 @@
 import sqlite3
 import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+from typing import Dict, Union
 
 sentiment_pipeline = pipeline(
     'sentiment-analysis',
@@ -89,7 +90,7 @@ def av_score(user_id: int, current_score: float) -> str:
     prc = round(worse / total * 100)
 
     if worse > total / 2:
-        msg2 = f'Это предсказание позитивнее, чем {prc}% ваших предсказаний.
+        msg2 = f'Это предсказание позитивнее, чем {prc}% ваших предсказаний.'
     elif worse < total / 2:
         msg2 = f'Это предсказание негативнее, чем {100 - prc}% ваших предсказаний.'
     else:
@@ -136,7 +137,7 @@ def save_sent_stats(user_id: int, text: str) -> Dict[str, Union[str, float]]:
 
     result_text = (
         f'Это {tone_label} предсказание. Мы уверены в этом на {tone_score}%.\n'
-        f'Ваше предсказание несёт {', '.join(emotions)}.\n'
+        f"Ваше предсказание несёт {', '.join(emotions)}.\n"
         f'{stat_text}'
     )
 
